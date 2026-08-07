@@ -1,9 +1,10 @@
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 EPG_URL = "https://xmltvfr.fr/xmltv/xmltv.xml"
-SHIFT_HOURS = 2
+PARIS = ZoneInfo("Europe/Paris")
 DAYS_TO_KEEP = 2
 
 INPUT = "original.xml"
@@ -37,7 +38,11 @@ for programme in list(root.findall("programme")):
         tz_part = start[14:]
 
         dt = datetime.strptime(date_part, "%Y%m%d%H%M%S")
-        dt = dt + timedelta(hours=SHIFT_HOURS)
+
+        # Conversion automatique selon l'heure française
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+        dt = dt.astimezone(PARIS)
+        dt = dt.replace(tzinfo=None)
 
         # Garde uniquement maintenant + 3 jours
         if dt < start_limit or dt > end_limit:
@@ -52,7 +57,10 @@ for programme in list(root.findall("programme")):
 
         if stop:
             stop_dt = datetime.strptime(stop[:14], "%Y%m%d%H%M%S")
-            stop_dt = stop_dt + timedelta(hours=SHIFT_HOURS)
+
+            stop_dt = stop_dt.replace(tzinfo=ZoneInfo("UTC"))
+            stop_dt = stop_dt.astimezone(PARIS)
+            stop_dt = stop_dt.replace(tzinfo=None)
 
             programme.attrib["stop"] = (
                 stop_dt.strftime("%Y%m%d%H%M%S") + stop[14:]
