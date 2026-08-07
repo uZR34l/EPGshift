@@ -66,5 +66,7 @@ xml_data = ET.tostring(root, encoding="utf-8")
 with gzip.open("epg.xml.gz", "wb") as f:
     f.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
     f.write(xml_data)
+    import os
+os.remove(INPUT)
 
 print("EPG corrigé généré en GZIP uniquement")
