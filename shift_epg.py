@@ -39,10 +39,10 @@ for programme in list(root.findall("programme")):
         dt = datetime.strptime(date_part, "%Y%m%d%H%M%S")
         dt = dt + timedelta(hours=SHIFT_HOURS)
 
-        # Suppression des programmes hors fenêtre de 3 jours
+        # Garde uniquement maintenant + 3 jours
         if dt < start_limit or dt > end_limit:
-    root.remove(programme)
-    continue
+            root.remove(programme)
+            continue
 
         programme.attrib["start"] = (
             dt.strftime("%Y%m%d%H%M%S") + tz_part
