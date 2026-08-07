@@ -7,7 +7,7 @@ SHIFT_HOURS = 2
 DAYS_TO_KEEP = 3
 
 INPUT = "original.xml"
-OUTPUT = "epg.xml"
+OUTPUT = "temp.xml"
 
 # Téléchargement avec identification navigateur
 req = urllib.request.Request(
