@@ -1,14 +1,15 @@
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 EPG_URL = "https://xmltvfr.fr/xmltv/xmltv.xml"
 SHIFT_HOURS = 2
+DAYS_TO_KEEP = 3
 
 INPUT = "original.xml"
 OUTPUT = "epg.xml"
 
-# Téléchargement
+# Téléchargement avec identification navigateur
 req = urllib.request.Request(
     EPG_URL,
     headers={
@@ -23,19 +24,37 @@ with urllib.request.urlopen(req) as response:
 tree = ET.parse(INPUT)
 root = tree.getroot()
 
-for programme in root.findall("programme"):
-    for key in ["start", "stop"]:
-        value = programme.attrib.get(key)
+now = datetime.now()
+limit = now + timedelta(days=DAYS_TO_KEEP)
 
-        if value:
-            date_part = value[:14]
-            tz_part = value[14:]
+for programme in list(root.findall("programme")):
 
-            dt = datetime.strptime(date_part, "%Y%m%d%H%M%S")
-            dt = dt + timedelta(hours=SHIFT_HOURS)
+    start = programme.attrib.get("start")
 
-            programme.attrib[key] = (
-                dt.strftime("%Y%m%d%H%M%S") + tz_part
+    if start:
+        date_part = start[:14]
+        tz_part = start[14:]
+
+        dt = datetime.strptime(date_part, "%Y%m%d%H%M%S")
+        dt = dt + timedelta(hours=SHIFT_HOURS)
+
+        # Suppression des programmes hors fenêtre de 3 jours
+        if dt > limit:
+            root.remove(programme)
+            continue
+
+        programme.attrib["start"] = (
+            dt.strftime("%Y%m%d%H%M%S") + tz_part
+        )
+
+        stop = programme.attrib.get("stop")
+
+        if stop:
+            stop_dt = datetime.strptime(stop[:14], "%Y%m%d%H%M%S")
+            stop_dt = stop_dt + timedelta(hours=SHIFT_HOURS)
+
+            programme.attrib["stop"] = (
+                stop_dt.strftime("%Y%m%d%H%M%S") + stop[14:]
             )
 
 tree.write(
@@ -44,4 +63,4 @@ tree.write(
     xml_declaration=True
 )
 
-print("EPG corrigé généré")
+print("EPG corrigé généré avec 3 jours de programmes")
