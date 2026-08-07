@@ -58,10 +58,13 @@ for programme in list(root.findall("programme")):
                 stop_dt.strftime("%Y%m%d%H%M%S") + stop[14:]
             )
 
-tree.write(
-    OUTPUT,
-    encoding="utf-8",
-    xml_declaration=True
-)
+import gzip
 
-print("EPG corrigé généré avec 3 jours de programmes")
+# Création du XML temporaire puis compression directe
+xml_data = ET.tostring(root, encoding="utf-8")
+
+with gzip.open("epg.xml.gz", "wb") as f:
+    f.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
+    f.write(xml_data)
+
+print("EPG corrigé généré en GZIP uniquement")
