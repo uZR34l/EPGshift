@@ -9,7 +9,16 @@ INPUT = "original.xml"
 OUTPUT = "epg.xml"
 
 # Téléchargement
-urllib.request.urlretrieve(EPG_URL, INPUT)
+req = urllib.request.Request(
+    EPG_URL,
+    headers={
+        "User-Agent": "Mozilla/5.0"
+    }
+)
+
+with urllib.request.urlopen(req) as response:
+    with open(INPUT, "wb") as f:
+        f.write(response.read())
 
 tree = ET.parse(INPUT)
 root = tree.getroot()
