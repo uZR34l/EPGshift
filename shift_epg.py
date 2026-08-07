@@ -25,7 +25,8 @@ tree = ET.parse(INPUT)
 root = tree.getroot()
 
 now = datetime.now()
-limit = now + timedelta(days=DAYS_TO_KEEP)
+start_limit = now - timedelta(hours=2)
+end_limit = now + timedelta(days=DAYS_TO_KEEP)
 
 for programme in list(root.findall("programme")):
 
@@ -39,9 +40,9 @@ for programme in list(root.findall("programme")):
         dt = dt + timedelta(hours=SHIFT_HOURS)
 
         # Suppression des programmes hors fenêtre de 3 jours
-        if dt > limit:
-            root.remove(programme)
-            continue
+        if dt < start_limit or dt > end_limit:
+    root.remove(programme)
+    continue
 
         programme.attrib["start"] = (
             dt.strftime("%Y%m%d%H%M%S") + tz_part
