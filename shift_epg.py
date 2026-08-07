@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 EPG_URL = "https://xmltvfr.fr/xmltv/xmltv.xml"
 SHIFT_HOURS = 2
-DAYS_TO_KEEP = 3
+DAYS_TO_KEEP = 2
 
 INPUT = "original.xml"
 OUTPUT = "temp.xml"
@@ -25,8 +25,8 @@ tree = ET.parse(INPUT)
 root = tree.getroot()
 
 now = datetime.now()
-start_limit = now - timedelta(hours=2)
-end_limit = now + timedelta(days=DAYS_TO_KEEP)
+start_limit = now - timedelta(days=2)
+end_limit = now + timedelta(days=2)
 
 for programme in list(root.findall("programme")):
 
